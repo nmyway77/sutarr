@@ -2,8 +2,10 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>수특라이트 영어 배열영작</title>
+  <title>배열영작 연습 - 드래그&클릭+모바일</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- SortableJS CDN (최신버전) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <style>
     body { font-family: 'Arial Rounded MT Bold', Arial, sans-serif; background:#fff; margin:0; }
     .header {
@@ -47,8 +49,6 @@
     }
     .eng-ans .word { background: #e0e7ef; color: #1e293b; cursor: grab;}
     .eng-build .word:active, .eng-ans .word:active { background: #1d4ed8; }
-    .drag-over { outline: 2.5px solid #eab308; background: #fdf6bb !important; }
-    .drag-insert { border-left: 4px solid #eab308 !important;}
     .eng-result { font-size:1em; color:#d97706; min-height:28px; font-weight: bold; margin-bottom:4px;}
     .eng-btns button {padding:5px 14px; font-size:1em; border-radius:7px; border:none; background:#3b82f6; color:#fff; cursor:pointer; margin-right:5px; font-weight:bold;}
     .eng-btns button:active {background:#194ca0;}
@@ -63,8 +63,8 @@
 </head>
 <body>
   <div class="header">
-    <a class="home-btn" href="https://nmyway77.github.io/home2/">홈으로</a>
-    수특라이트 배열영작
+    <a class="home-btn" href="/">홈으로</a>
+    배열영작 연습 - 드래그 & 클릭
   </div>
   <div class="mainbar">
     <select id="lessonSelect" class="lesson-select" onchange="changeLesson()"></select>
@@ -137,19 +137,13 @@
         <div class="sentence-row" style="align-items: flex-start;">
           <div class="sentence-content" style="width:100%">
             <div class="en" style="margin-bottom:6px;color:#222;">${ko}</div>
-            <div class="eng-ans sortable" id="ans-${i}" 
-              ondragover="allowDropAns(event,${i})" ondragleave="dragLeaveAns(event,${i})" ondrop="dropAns(event,${i})">
+            <div class="eng-ans sortable" id="ans-${i}">
               ${st.chosen.map((w, idx) => `
-                <button class="word" draggable="true" 
-                  ondragstart="dragStartAns(event,${i},${idx})"
-                  onclick="removeWord(${i},${idx})"
-                  data-idx="${idx}"
-                  >${w}</button>
+                <button class="word" onclick="removeWord(${i},${idx})">${w}</button>
               `).join('')}
             </div>
-            <div class="eng-build sortable" id="pool-${i}" 
-              ondrop="dropPool(event,${i})" ondragover="allowDropPool(event)" ondragleave="dragLeavePool(event)">
-              ${st.pool.map((w, idx) => `<button class="word" draggable="true" ondragstart="dragStartPool(event,${i},${idx})" onclick="chooseWord(${i},${idx})">${w}</button>`).join('')}
+            <div class="eng-build sortable" id="pool-${i}">
+              ${st.pool.map((w, idx) => `<button class="word" onclick="chooseWord(${i},${idx})">${w}</button>`).join('')}
             </div>
             <div class="eng-btns">
               <button onclick="undoLastWord(${i})">되돌리기</button>
@@ -162,6 +156,28 @@
       `;
     });
     document.getElementById('sectionContent').innerHTML = contentHTML || `<i>아직 내용이 없습니다.</i>`;
+
+    // ------- 여기가 핵심! (정답영역 드래그&드롭 활성화) --------
+    setTimeout(() => {
+      sentArr.forEach((item, idx) => {
+        let el = document.getElementById('ans-' + idx);
+        if (el && !el.dataset.sortable) {
+          Sortable.create(el, {
+            animation: 150,
+            direction: 'horizontal',
+            onEnd: function (evt) {
+              // 실제 단어 순서 맞게 buildStates에 반영
+              let st = buildStates[idx];
+              const nodes = Array.from(el.children);
+              st.chosen = nodes.map(node => node.textContent);
+              st.result = '';
+              updateUI();
+            }
+          });
+          el.dataset.sortable = "1";
+        }
+      });
+    }, 0);
   }
 
   // 배열영작 기능
@@ -204,109 +220,11 @@
     updateUI();
   }
 
-  // --- 드래그 앤 드롭 관련 코드 ---
-  let dragData = null;
-  let dragInsertIdx = null;
-
-  // 풀(아래) → 위로 드래그
-  function dragStartPool(event, i, idx) {
-    dragData = {type:'pool', i, idx};
-    event.dataTransfer.effectAllowed = "move";
-  }
-  // 정답영역(위) → 다른 위치로 드래그
-  function dragStartAns(event, i, idx) {
-    dragData = {type:'ans', i, idx};
-    event.dataTransfer.effectAllowed = "move";
-  }
-  function allowDropAns(event, i) {
-    event.preventDefault();
-    // 마우스가 어느 단어 사이에 있는지 체크
-    const container = document.getElementById(`ans-${i}`);
-    const rect = container.getBoundingClientRect();
-    let x = event.clientX - rect.left;
-    let insert = 0;
-    let total = container.children.length;
-    let found = false;
-    for(let k=0;k<total;k++) {
-      let child = container.children[k];
-      let childRect = child.getBoundingClientRect();
-      if(x < (childRect.left+childRect.width/2-rect.left)) {
-        child.classList.add("drag-insert");
-        insert = k;
-        found = true;
-        break;
-      } else {
-        child.classList.remove("drag-insert");
-      }
-    }
-    if(!found && total>0) {
-      container.children[total-1].classList.remove("drag-insert");
-    }
-    dragInsertIdx = found ? insert : total;
-    container.classList.add("drag-over");
-  }
-  function dragLeaveAns(event, i) {
-    event.currentTarget.classList.remove("drag-over");
-    Array.from(event.currentTarget.children).forEach(btn=>btn.classList.remove("drag-insert"));
-    dragInsertIdx = null;
-  }
-  function dropAns(event, i) {
-    event.preventDefault();
-    event.currentTarget.classList.remove("drag-over");
-    Array.from(event.currentTarget.children).forEach(btn=>btn.classList.remove("drag-insert"));
-    let st = buildStates[i];
-    if(!dragData) return;
-    if(dragData.type === "pool" && dragData.i === i) {
-      // 풀에서 위로 올리기 (드래그)
-      let word = st.pool[dragData.idx];
-      st.pool.splice(dragData.idx,1);
-      if (typeof dragInsertIdx === "number" && dragInsertIdx >= 0) {
-        st.chosen.splice(dragInsertIdx,0,word);
-      } else {
-        st.chosen.push(word);
-      }
-    } else if(dragData.type === "ans" && dragData.i === i) {
-      // 정답영역 내 단어 순서 바꾸기
-      let [word] = st.chosen.splice(dragData.idx,1);
-      let insertIdx = dragInsertIdx;
-      if(insertIdx > dragData.idx) insertIdx--; // 원래 위치 빼고 나면 한 칸 앞당겨짐
-      st.chosen.splice(insertIdx,0,word);
-    }
-    st.result="";
-    dragInsertIdx = null;
-    dragData=null;
-    updateUI();
-  }
-  // 풀 영역 드롭 (위→아래)
-  function allowDropPool(event) { event.preventDefault(); event.currentTarget.classList.add("drag-over"); }
-  function dragLeavePool(event) { event.currentTarget.classList.remove("drag-over"); }
-  function dropPool(event, i) {
-    event.preventDefault();
-    event.currentTarget.classList.remove("drag-over");
-    let st = buildStates[i];
-    if(!dragData) return;
-    if(dragData.type === "ans" && dragData.i === i) {
-      st.pool.push(st.chosen[dragData.idx]);
-      st.chosen.splice(dragData.idx,1);
-    }
-    st.result="";
-    dragData=null;
-    updateUI();
-  }
-
   updateUI();
   window.selectSection = selectSection;
   window.undoLastWord = undoLastWord;
   window.resetBuild = resetBuild;
   window.checkBuild = checkBuild;
-  window.dragStartPool = dragStartPool;
-  window.dragStartAns = dragStartAns;
-  window.allowDropAns = allowDropAns;
-  window.dragLeaveAns = dragLeaveAns;
-  window.dropAns = dropAns;
-  window.allowDropPool = allowDropPool;
-  window.dragLeavePool = dragLeavePool;
-  window.dropPool = dropPool;
   window.chooseWord = chooseWord;
   window.removeWord = removeWord;
 </script>

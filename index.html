@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+ <!DOCTYPE html> 
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -135,12 +135,14 @@
           <div class="sentence-content" style="width:100%">
             <div class="en" style="margin-bottom:6px;color:#222;">${ko}</div>
             <div class="eng-ans sortable" id="ans-${i}">
-              ${st.chosen.map((w, idx) => `
-                <button class="word">${w}</button>
-              `).join('')}
+              ${st.chosen.map((w, idx) => 
+                `<button class="word" onclick="moveToPool(${i}, ${idx})">${w}</button>`
+              ).join('')}
             </div>
             <div class="eng-build sortable" id="pool-${i}">
-              ${st.pool.map((w, idx) => `<button class="word">${w}</button>`).join('')}
+              ${st.pool.map((w, idx) =>
+                `<button class="word" onclick="moveToAns(${i}, ${idx})">${w}</button>`
+              ).join('')}
             </div>
             <div class="eng-btns">
               <button onclick="undoLastWord(${i})">되돌리기</button>
@@ -219,6 +221,22 @@
     } else {
       st.result = "정확히 맞춰보세요!";
     }
+    updateUI();
+  }
+
+  // 클릭으로 풀 → 정답, 정답 → 풀 이동
+  window.moveToAns = function(i, idx) {
+    let st = buildStates[i];
+    st.chosen.push(st.pool[idx]);
+    st.pool.splice(idx,1);
+    st.result = "";
+    updateUI();
+  }
+  window.moveToPool = function(i, idx) {
+    let st = buildStates[i];
+    st.pool.push(st.chosen[idx]);
+    st.chosen.splice(idx,1);
+    st.result = "";
     updateUI();
   }
 

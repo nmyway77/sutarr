@@ -2,9 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>수특라이트 배열영작</title>
+  <title>배열영작 연습 - 완전 드래그 (풀↔정답, 모바일/PC)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- SortableJS CDN (최신버전) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <style>
     body { font-family: 'Arial Rounded MT Bold', Arial, sans-serif; background:#fff; margin:0; }
@@ -63,8 +62,8 @@
 </head>
 <body>
   <div class="header">
-    <a class="home-btn" href="https://nmyway77.github.io/home2/">홈으로</a>
-    수특라이트 배열영작
+    <a class="home-btn" href="/">홈으로</a>
+    배열영작 연습 - 드래그&클릭 (풀↔정답 자유)
   </div>
   <div class="mainbar">
     <select id="lessonSelect" class="lesson-select" onchange="changeLesson()"></select>
@@ -88,7 +87,6 @@
     '1-3': [],
     '1-4': [],
     '1-5': [],
-    // ... '2-1', '2-2' 등도 동일하게 추가
   };
   for (let i=1; i<=25; i++) for (let j=1; j<=4; j++) if (!sectionSentences[`${i}-${j}`]) sectionSentences[`${i}-${j}`] = [];
 
@@ -96,7 +94,6 @@
   let currentSectionIdx = 0;
   let buildStates = {};
 
-  // 과 셀렉트 박스 자동 생성
   function setLessonOptions() {
     const sel = document.getElementById('lessonSelect');
     sel.innerHTML = '';
@@ -139,11 +136,11 @@
             <div class="en" style="margin-bottom:6px;color:#222;">${ko}</div>
             <div class="eng-ans sortable" id="ans-${i}">
               ${st.chosen.map((w, idx) => `
-                <button class="word" onclick="removeWord(${i},${idx})">${w}</button>
+                <button class="word">${w}</button>
               `).join('')}
             </div>
             <div class="eng-build sortable" id="pool-${i}">
-              ${st.pool.map((w, idx) => `<button class="word" onclick="chooseWord(${i},${idx})">${w}</button>`).join('')}
+              ${st.pool.map((w, idx) => `<button class="word">${w}</button>`).join('')}
             </div>
             <div class="eng-btns">
               <button onclick="undoLastWord(${i})">되돌리기</button>
@@ -157,45 +154,50 @@
     });
     document.getElementById('sectionContent').innerHTML = contentHTML || `<i>아직 내용이 없습니다.</i>`;
 
-    // ------- 여기가 핵심! (정답영역 드래그&드롭 활성화) --------
+    // 정답영역, 풀영역 모두 Sortable 연결(connected)
     setTimeout(() => {
       sentArr.forEach((item, idx) => {
-        let el = document.getElementById('ans-' + idx);
-        if (el && !el.dataset.sortable) {
-          Sortable.create(el, {
-            animation: 150,
+        let ansEl = document.getElementById('ans-' + idx);
+        let poolEl = document.getElementById('pool-' + idx);
+        if (!ansEl || !poolEl) return;
+        // 연결 이름 각 문장별로 다르게!
+        const groupName = 'group-'+currentUnit+'-'+currentSectionIdx+'-'+idx;
+
+        if (!ansEl.dataset.sortable) {
+          Sortable.create(ansEl, {
+            group: { name: groupName, pull: true, put: true },
+            animation: 130,
             direction: 'horizontal',
-            onEnd: function (evt) {
-              // 실제 단어 순서 맞게 buildStates에 반영
-              let st = buildStates[idx];
-              const nodes = Array.from(el.children);
-              st.chosen = nodes.map(node => node.textContent);
-              st.result = '';
-              updateUI();
-            }
+            onAdd: function(evt) { syncWords(idx); },
+            onUpdate: function(evt) { syncWords(idx); }
           });
-          el.dataset.sortable = "1";
+          ansEl.dataset.sortable = "1";
+        }
+        if (!poolEl.dataset.sortable) {
+          Sortable.create(poolEl, {
+            group: { name: groupName, pull: true, put: true },
+            animation: 130,
+            direction: 'horizontal',
+            onAdd: function(evt) { syncWords(idx); },
+            onUpdate: function(evt) { syncWords(idx); }
+          });
+          poolEl.dataset.sortable = "1";
         }
       });
     }, 0);
   }
 
-  // 배열영작 기능
+  // Sortable 후 실제 단어상태 반영
+  function syncWords(idx) {
+    let ansEl = document.getElementById('ans-'+idx);
+    let poolEl = document.getElementById('pool-'+idx);
+    let st = buildStates[idx];
+    st.chosen = Array.from(ansEl.children).map(b=>b.textContent);
+    st.pool = Array.from(poolEl.children).map(b=>b.textContent);
+    st.result = "";
+    updateUI();
+  }
   function shuffle(arr) { return arr.slice().sort(() => Math.random() - 0.5);}
-  function chooseWord(i, idx) {
-    let st = buildStates[i];
-    st.chosen.push(st.pool[idx]);
-    st.pool.splice(idx,1);
-    st.result="";
-    updateUI();
-  }
-  function removeWord(i, idx) {
-    let st = buildStates[i];
-    st.pool.push(st.chosen[idx]);
-    st.chosen.splice(idx,1);
-    st.result="";
-    updateUI();
-  }
   function undoLastWord(i) {
     let st = buildStates[i];
     if(st.chosen.length>0) st.pool.push(st.chosen.pop());
@@ -225,8 +227,6 @@
   window.undoLastWord = undoLastWord;
   window.resetBuild = resetBuild;
   window.checkBuild = checkBuild;
-  window.chooseWord = chooseWord;
-  window.removeWord = removeWord;
 </script>
 </body>
 </html>

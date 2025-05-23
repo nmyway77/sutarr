@@ -2,36 +2,263 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>2줄씩 → JS 배열 변환기 (초간단)</title>
+  <title>수특라이트 영어 연습 통합</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial,sans-serif; padding: 32px; }
-    textarea { width:100%; font-size:1.13rem; padding:10px; border-radius:8px; border:1px solid #bfcad6; margin-bottom:12px; }
-    #result { background: #f4f6fa; padding:18px; border-radius:10px; font-family: 'Consolas', monospace; white-space: pre-wrap;}
-    button { background:#2563eb; color:#fff; border:none; border-radius:8px; font-size:1.09rem; padding:8px 25px; cursor:pointer;}
+    body { font-family: 'Arial Rounded MT Bold', Arial, sans-serif; background:#fff; margin:0; }
+    .header {
+      background: #3b82f6; color: #fff; text-align: center;
+      font-size: 1.5rem; font-weight: bold; box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      margin-bottom: 18px; border-radius: 0 0 38px 38px;
+      min-height: 70px; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      padding-top: 18px; padding-bottom: 18px;
+    }
+    .home-btn {
+      position: absolute; left: 16px; top: 16px;
+      background: #fff; color: #3b82f6; font-size: 1.07rem; border:none; border-radius: 13px;
+      padding: 10px 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 10px #0001;
+      transition: background 0.14s, color 0.14s;
+      text-decoration: none; display:inline-block;
+      z-index: 10;
+    }
+    .home-btn:active, .home-btn:focus, .home-btn:hover { background: #e9f2ff; color: #1757b8;}
+    .header-title { width: 100%; text-align: center; font-size: 1.17em; font-weight: bold; word-break: keep-all; padding: 0 60px;}
+    .mainbar { max-width: 550px; margin: 15px auto 0 auto; display:flex; flex-direction:column; align-items:center; gap:12px; }
+    .lesson-select { padding: 9px 10px; border: 1.3px solid #2563eb; border-radius: 10px; font-size: 1.04rem; background: #fff; color: #222; width: 100%; max-width:98vw; min-width:140px; margin-bottom: 5px;}
+    .main-title { text-align: center; font-size: 1.28rem; font-weight: bold; margin: 18px 0 9px 0; color: #23243a;}
+    .section-tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 0 0; width: 100%;}
+    .section-tab { background: #eee; color: #212a35; border:none; border-radius: 7px; padding: 6px 18px; font-size: 1.02rem; cursor:pointer; transition: background 0.14s, color 0.14s; font-weight: 500; margin-bottom: 3px;}
+    .section-tab.selected { background: #2563eb; color:#fff; }
+    .feature-tabs {display:flex; justify-content: center; gap:18px; margin-bottom:10px;}
+    .feature-tab {background:#e3eafd; color:#3b82f6; font-weight:bold; border:none; border-radius:9px; padding:8px 24px; font-size:1.09em; cursor:pointer;}
+    .feature-tab.selected {background:#2563eb; color:#fff;}
+    .content-box { max-width: 96vw; min-height: 70px; margin: 22px auto 0 auto; border-radius:18px; background:#fff; box-shadow:0 6px 20px #e5eaf5; padding: 18px 8px 18px 8px; }
+    .sentence-row { display: flex; align-items: flex-start; margin-bottom: 18px; }
+    .sentence-content { flex: 1; }
+    .en { font-size: 1.07rem; background: #fff; border: 1px solid #e3e3e3; border-radius: 9px; padding: 12px 10px; min-width: 60vw; word-break: break-all; margin-bottom: 2px; color:#2563eb;}
+    .ko { font-size: 1.05rem; background: #fff; border: 1px solid #efefef; border-radius: 9px; padding: 12px 10px; margin-top: 8px; color: #202020; display: none; }
+    .show-btn { height: 36px; align-self: flex-start; padding: 7px 18px; background: #007aff; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-size: 0.97rem; margin-left: 9px;}
+    .show-btn:active, .show-btn:focus { background: #0a51b0;}
+    .word { color: #2366d1; cursor: pointer; padding: 1.5px 2.5px; border-radius: 4px; transition: background 0.13s;}
+    .word:hover { background: #eaf1ff; }
+    .sortable { display: flex; flex-wrap: wrap; min-height: 54px; gap: 11px; margin-bottom: 11px;}
+    .eng-build .word { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 7px 18px; font-size: 1em; font-weight: bold; cursor: pointer;}
+    .eng-build .word:hover {background: #1d4ed8;}
+    .eng-ans .word { background: #e0e7ef; color: #1e293b;}
+    .eng-result { font-size:1em; color:#d97706; min-height:28px; font-weight: bold; margin-bottom:4px;}
+    .eng-btns button {padding:5px 14px; font-size:1em; border-radius:7px; border:none; background:#3b82f6; color:#fff; cursor:pointer; margin-right:5px; font-weight:bold;}
+    .eng-btns button:active {background:#194ca0;}
+    @media (max-width: 500px) {
+      .header-title { font-size: 0.92em; padding: 0 15vw;}
+      .mainbar { max-width: 99vw; }
+      .content-box { padding: 7vw 2vw;}
+      .en, .ko { min-width: 10vw; font-size: 0.95rem; }
+      .section-tab { font-size: 0.95rem; padding: 6px 13px;}
+      .show-btn { width: 100%; margin: 8px 0 0 0;}
+      .sentence-row { flex-direction: column;}
+    }
   </style>
 </head>
 <body>
-  <h2>2줄씩(영어+해석) → JS 배열 자동 변환</h2>
-  <p>아래에 <b>영어문장, 한글해석</b> 쌍을 <b>2줄씩 계속 붙여넣고</b> "변환"을 누르세요.</p>
-  <textarea id="src" rows="10" placeholder="Once you tell what happened to you, you will be less able to forget the parts of the story that you told.
-일단 당신이 무슨 일이 있었는지 이야기하면, 이야기한 부분을 잊기가 더 어려워집니다.
-In some sense, telling a story makes it happen again.
-어떤 의미에서, 이야기를 하는 것은 그것을 다시 일어나게 만듭니다."></textarea>
-  <br>
-  <button onclick="convert()">변환</button>
-  <h3>복사해서 코드에 붙여넣으세요:</h3>
-  <div id="result"></div>
+  <div class="header">
+    <a href="https://nmyway77.github.io/home2/" class="home-btn">홈으로</a>
+    <div class="header-title">
+      수특 해석&배열영작 연습 [목동서로영어학원]
+    </div>
+  </div>
+  <div class="mainbar">
+    <select id="lessonSelect" class="lesson-select" onchange="changeLesson()"></select>
+    <div class="main-title" id="mainTitle"></div>
+    <div class="section-tabs" id="sectionTabs"></div>
+    <div class="feature-tabs">
+      <button id="btn1" class="feature-tab" onclick="setFeature('view')">해석 연습</button>
+      <button id="btn2" class="feature-tab selected" onclick="setFeature('arrange')">배열영작 연습</button>
+    </div>
+  </div>
+  <div class="content-box" id="sectionContent"></div>
 <script>
-function convert() {
-  const lines = document.getElementById('src').value.split(/\n/).map(x=>x.trim()).filter(x=>x);
-  let arr = [];
-  for(let i=0;i<lines.length;i+=2) {
-    const en = lines[i] || "";
-    const ko = lines[i+1] || "";
-    if(en && ko) arr.push(`  {en: ${JSON.stringify(en)}, ko: ${JSON.stringify(ko)}}`);
+  // --- 데이터 구조 (예시 1-1만, 나머지 section은 빈 배열) ---
+  const lessonSections = {};
+  for (let i=1; i<=25; i++) lessonSections[i] = [`${i}-1`, `${i}-2`, `${i}-3`, `${i}-4`, `${i}-5`];
+  const sectionSentences = {
+    '1-1': [
+      {en: "As the technological revolution gathers pace, education and training are thought to be the answer to everything.", ko: "기술 혁명이 속도를 내면서 교육과 훈련이 모든 문제의 해결책이라고 여겨진다."},
+      {en: "They are, but we have to understand the question.", ko: "그렇긴 하지만, 우리는 먼저 질문을 이해해야 한다."},
+      {en: "Educating more people — and to a much higher standard — is vital.", ko: "더 많은 사람을 그리고 훨씬 더 높은 수준으로 교육하는 것은 필수적이다."},
+      {en: "But we also have to educate them differently.", ko: "하지만 우리는 또한 그들을 다르게 교육해야 한다."},
+      {en: "The problem is that present expansion is based on a fundamental misconception: the confusion of academic ability with intelligence.", ko: "문제는 현재의 확장이 근본적인 오해, 즉 학업 능력과 지능을 혼동하는 것에 기반하고 있다는 점이다."}
+    ],
+    '1-2': [],
+    '1-3': [],
+    '1-4': [],
+    '1-5': [],
+    // ... '2-1', '2-2' 등도 동일하게 추가
+  };
+  for (let i=1; i<=25; i++) for (let j=1; j<=4; j++) if (!sectionSentences[`${i}-${j}`]) sectionSentences[`${i}-${j}`] = [];
+
+  let currentUnit = 1;
+  let currentSectionIdx = 0;
+  let currentFeature = 'arrange'; // 'view'(해석), 'arrange'(배열영작) ←★ 배열영작 기본!
+  let buildStates = {};
+
+  // 과 셀렉트 박스 자동 생성
+  function setLessonOptions() {
+    const sel = document.getElementById('lessonSelect');
+    sel.innerHTML = '';
+    for (let i=1; i<=25; i++) {
+      sel.innerHTML += `<option value="${i}">Lesson ${i}</option>`;
+    }
   }
-  document.getElementById('result').innerText = '[\n' + arr.join(',\n') + '\n]';
-}
+  setLessonOptions();
+
+  function changeLesson() {
+    let sel = document.getElementById('lessonSelect');
+    currentUnit = parseInt(sel.value, 10);
+    currentSectionIdx = 0;
+    buildStates = {}; // 배열영작 상태 초기화
+    updateUI();
+  }
+  function selectSection(idx) {
+    currentSectionIdx = idx;
+    buildStates = {};
+    updateUI();
+  }
+  function setFeature(feat) {
+    currentFeature = feat;
+    document.getElementById('btn1').classList.toggle('selected', feat==='view');
+    document.getElementById('btn2').classList.toggle('selected', feat==='arrange');
+    buildStates = {};
+    updateUI();
+  }
+
+  function updateUI() {
+    // 타이틀/섹션
+    document.getElementById('mainTitle').textContent = `Lesson ${currentUnit}`;
+    document.getElementById('lessonSelect').value = currentUnit;
+    let tabs = '', sections = lessonSections[currentUnit] || [];
+    sections.forEach((name, idx) => {
+      tabs += `<button class="section-tab${idx===currentSectionIdx?' selected':''}" onclick="selectSection(${idx})">${name}</button>`;
+    });
+    document.getElementById('sectionTabs').innerHTML = tabs;
+    let contentHTML = '';
+    const sectionKey = sections[currentSectionIdx];
+    const sentArr = sectionSentences[sectionKey] || [];
+    if(currentFeature==='view') {
+      // 해석 연습 모드
+      sentArr.forEach(({en, ko}, i) => {
+        let words = en.split(/(\s+|[.,?!;:])/g).map(word => {
+          let pure = word.replace(/[^A-Za-z\-']/g, '').toLowerCase();
+          if (/[A-Za-z]/.test(word)) {
+            return `<span class="word" onclick="showDict('${pure}')">${word}</span>`;
+          } else {
+            return word;
+          }
+        }).join('');
+        contentHTML += `
+          <div class="sentence-row">
+            <div class="sentence-content">
+              <div class="en">${words}</div>
+              <div class="ko">${ko}</div>
+            </div>
+            <button class="show-btn" onclick="toggleKO(this)">해석</button>
+          </div>
+        `;
+      });
+    } else if(currentFeature==='arrange') {
+      // 배열영작 모드
+      sentArr.forEach(({en, ko}, i) => {
+        let st = buildStates[i] || {chosen:[], pool:shuffle(en.split(' ')), result:""};
+        buildStates[i] = st;
+        contentHTML += `
+          <div class="sentence-row" style="align-items: flex-start;">
+            <div class="sentence-content" style="width:100%">
+              <div class="en" style="margin-bottom:6px;color:#222;">${ko}</div>
+              <div class="eng-ans sortable">
+                ${st.chosen.map((w, idx) => `<button class="word" onclick="removeWord(${i},${idx})">${w}</button>`).join('')}
+              </div>
+              <div class="eng-build sortable">
+                ${st.pool.map((w, idx) => `<button class="word" onclick="chooseWord(${i},${idx})">${w}</button>`).join('')}
+              </div>
+              <div class="eng-btns">
+                <button onclick="undoLastWord(${i})">되돌리기</button>
+                <button onclick="resetBuild(${i})">초기화</button>
+                <button onclick="checkBuild(${i})">정답 확인</button>
+              </div>
+              <div class="eng-result" id="engres-${i}">${st.result||""}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+    document.getElementById('sectionContent').innerHTML = contentHTML || `<i>아직 내용이 없습니다.</i>`;
+  }
+
+  // 해석 보기/숨기기
+  function toggleKO(btn) {
+    const ko = btn.parentElement.querySelector('.ko');
+    if (ko.style.display === 'block') {
+      ko.style.display = 'none';
+      btn.textContent = '해석';
+    } else {
+      ko.style.display = 'block';
+      btn.textContent = '숨기기';
+    }
+  }
+  // 단어 클릭 → 네이버 영어사전
+  function showDict(word) {
+    if (!word) return;
+    window.open('https://en.dict.naver.com/#/search?query=' + encodeURIComponent(word), '_blank');
+  }
+
+  // 배열영작 기능
+  function shuffle(arr) { return arr.slice().sort(() => Math.random() - 0.5);}
+  function chooseWord(i, idx) {
+    let st = buildStates[i];
+    st.chosen.push(st.pool[idx]);
+    st.pool.splice(idx,1);
+    st.result="";
+    updateUI();
+  }
+  function removeWord(i, idx) {
+    let st = buildStates[i];
+    st.pool.push(st.chosen[idx]);
+    st.chosen.splice(idx,1);
+    st.result="";
+    updateUI();
+  }
+  function undoLastWord(i) {
+    let st = buildStates[i];
+    if(st.chosen.length>0) st.pool.push(st.chosen.pop());
+    st.result="";
+    updateUI();
+  }
+  function resetBuild(i) {
+    let sentArr = sectionSentences[lessonSections[currentUnit][currentSectionIdx]] || [];
+    buildStates[i] = {chosen:[], pool:shuffle(sentArr[i].en.split(' ')), result:""};
+    updateUI();
+  }
+  function checkBuild(i) {
+    let sentArr = sectionSentences[lessonSections[currentUnit][currentSectionIdx]] || [];
+    let st = buildStates[i];
+    let correct = sentArr[i].en.trim();
+    let user = st.chosen.join(' ').trim();
+    if(user === correct) {
+      st.result = "정답입니다! 🎉";
+    } else {
+      st.result = "정확히 맞춰보세요!";
+    }
+    updateUI();
+  }
+
+  updateUI();
+  window.toggleKO = toggleKO;
+  window.showDict = showDict;
+  window.chooseWord = chooseWord;
+  window.removeWord = removeWord;
+  window.undoLastWord = undoLastWord;
+  window.resetBuild = resetBuild;
+  window.checkBuild = checkBuild;
 </script>
 </body>
 </html>

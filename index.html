@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>수특라이트 영어 연습 통합</title>
+  <title>배열영작 연습 - 드래그 & 클릭</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: 'Arial Rounded MT Bold', Arial, sans-serif; background:#fff; margin:0; }
@@ -15,70 +15,65 @@
       padding-top: 18px; padding-bottom: 18px;
     }
     .home-btn {
-      position: absolute; left: 16px; top: 16px;
-      background: #fff; color: #3b82f6; font-size: 1.07rem; border:none; border-radius: 13px;
-      padding: 10px 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 10px #0001;
-      transition: background 0.14s, color 0.14s;
-      text-decoration: none; display:inline-block;
-      z-index: 10;
+      position: absolute;
+      left: 22px; top: 20px;
+      background: #fff; color: #2563eb;
+      font-size: 1.11rem; border: none; border-radius: 17px;
+      padding: 13px 28px;
+      font-weight: bold; cursor: pointer; text-decoration: none;
+      box-shadow: 0 2px 9px #0001;
+      z-index: 2;
+      display: inline-block;
+      transition: background 0.15s, color 0.15s;
     }
-    .home-btn:active, .home-btn:focus, .home-btn:hover { background: #e9f2ff; color: #1757b8;}
-    .header-title { width: 100%; text-align: center; font-size: 1.17em; font-weight: bold; word-break: keep-all; padding: 0 60px;}
+    .home-btn:active, .home-btn:focus, .home-btn:hover {
+      background: #eaf1ff; color: #1552b8;
+      text-decoration: underline;
+    }
     .mainbar { max-width: 550px; margin: 15px auto 0 auto; display:flex; flex-direction:column; align-items:center; gap:12px; }
     .lesson-select { padding: 9px 10px; border: 1.3px solid #2563eb; border-radius: 10px; font-size: 1.04rem; background: #fff; color: #222; width: 100%; max-width:98vw; min-width:140px; margin-bottom: 5px;}
     .main-title { text-align: center; font-size: 1.28rem; font-weight: bold; margin: 18px 0 9px 0; color: #23243a;}
     .section-tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 0 0; width: 100%;}
     .section-tab { background: #eee; color: #212a35; border:none; border-radius: 7px; padding: 6px 18px; font-size: 1.02rem; cursor:pointer; transition: background 0.14s, color 0.14s; font-weight: 500; margin-bottom: 3px;}
     .section-tab.selected { background: #2563eb; color:#fff; }
-    .feature-tabs {display:flex; justify-content: center; gap:18px; margin-bottom:10px;}
-    .feature-tab {background:#e3eafd; color:#3b82f6; font-weight:bold; border:none; border-radius:9px; padding:8px 24px; font-size:1.09em; cursor:pointer;}
-    .feature-tab.selected {background:#2563eb; color:#fff;}
     .content-box { max-width: 96vw; min-height: 70px; margin: 22px auto 0 auto; border-radius:18px; background:#fff; box-shadow:0 6px 20px #e5eaf5; padding: 18px 8px 18px 8px; }
     .sentence-row { display: flex; align-items: flex-start; margin-bottom: 18px; }
     .sentence-content { flex: 1; }
     .en { font-size: 1.07rem; background: #fff; border: 1px solid #e3e3e3; border-radius: 9px; padding: 12px 10px; min-width: 60vw; word-break: break-all; margin-bottom: 2px; color:#2563eb;}
-    .ko { font-size: 1.05rem; background: #fff; border: 1px solid #efefef; border-radius: 9px; padding: 12px 10px; margin-top: 8px; color: #202020; display: none; }
-    .show-btn { height: 36px; align-self: flex-start; padding: 7px 18px; background: #007aff; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-size: 0.97rem; margin-left: 9px;}
-    .show-btn:active, .show-btn:focus { background: #0a51b0;}
-    .word { color: #2366d1; cursor: pointer; padding: 1.5px 2.5px; border-radius: 4px; transition: background 0.13s;}
-    .word:hover { background: #eaf1ff; }
     .sortable { display: flex; flex-wrap: wrap; min-height: 54px; gap: 11px; margin-bottom: 11px;}
-    .eng-build .word { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 7px 18px; font-size: 1em; font-weight: bold; cursor: pointer;}
-    .eng-build .word:hover {background: #1d4ed8;}
-    .eng-ans .word { background: #e0e7ef; color: #1e293b;}
+    .eng-build .word, .eng-ans .word {
+      background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 7px 18px; font-size: 1em; font-weight: bold; cursor: grab;
+      margin-bottom: 6px; user-select: none; transition: background 0.16s;
+    }
+    .eng-ans .word { background: #e0e7ef; color: #1e293b; cursor: grab;}
+    .eng-build .word:active, .eng-ans .word:active { background: #1d4ed8; }
+    .drag-over { outline: 2.5px solid #eab308; background: #fdf6bb !important; }
+    .drag-insert { border-left: 4px solid #eab308 !important;}
     .eng-result { font-size:1em; color:#d97706; min-height:28px; font-weight: bold; margin-bottom:4px;}
     .eng-btns button {padding:5px 14px; font-size:1em; border-radius:7px; border:none; background:#3b82f6; color:#fff; cursor:pointer; margin-right:5px; font-weight:bold;}
     .eng-btns button:active {background:#194ca0;}
     @media (max-width: 500px) {
-      .header-title { font-size: 0.92em; padding: 0 15vw;}
       .mainbar { max-width: 99vw; }
       .content-box { padding: 7vw 2vw;}
-      .en, .ko { min-width: 10vw; font-size: 0.95rem; }
+      .en { min-width: 10vw; font-size: 0.95rem; }
       .section-tab { font-size: 0.95rem; padding: 6px 13px;}
-      .show-btn { width: 100%; margin: 8px 0 0 0;}
       .sentence-row { flex-direction: column;}
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <a href="https://nmyway77.github.io/home2/" class="home-btn">홈으로</a>
-    <div class="header-title">
-      수특 해석&배열영작 연습 [목동서로영어학원]
-    </div>
+    <a class="home-btn" href="/">홈으로</a>
+    배열영작 연습 - 드래그 & 클릭
   </div>
   <div class="mainbar">
     <select id="lessonSelect" class="lesson-select" onchange="changeLesson()"></select>
     <div class="main-title" id="mainTitle"></div>
     <div class="section-tabs" id="sectionTabs"></div>
-    <div class="feature-tabs">
-      <button id="btn1" class="feature-tab" onclick="setFeature('view')">해석 연습</button>
-      <button id="btn2" class="feature-tab selected" onclick="setFeature('arrange')">배열영작 연습</button>
-    </div>
   </div>
   <div class="content-box" id="sectionContent"></div>
 <script>
-  // --- 데이터 구조 (예시 1-1만, 나머지 section은 빈 배열) ---
+  // 데이터 구조 (예시 1-1만, 나머지는 빈 배열)
   const lessonSections = {};
   for (let i=1; i<=25; i++) lessonSections[i] = [`${i}-1`, `${i}-2`, `${i}-3`, `${i}-4`, `${i}-5`];
   const sectionSentences = {
@@ -99,7 +94,6 @@
 
   let currentUnit = 1;
   let currentSectionIdx = 0;
-  let currentFeature = 'arrange'; // 'view'(해석), 'arrange'(배열영작) ←★ 배열영작 기본!
   let buildStates = {};
 
   // 과 셀렉트 박스 자동 생성
@@ -116,7 +110,7 @@
     let sel = document.getElementById('lessonSelect');
     currentUnit = parseInt(sel.value, 10);
     currentSectionIdx = 0;
-    buildStates = {}; // 배열영작 상태 초기화
+    buildStates = {};
     updateUI();
   }
   function selectSection(idx) {
@@ -124,16 +118,8 @@
     buildStates = {};
     updateUI();
   }
-  function setFeature(feat) {
-    currentFeature = feat;
-    document.getElementById('btn1').classList.toggle('selected', feat==='view');
-    document.getElementById('btn2').classList.toggle('selected', feat==='arrange');
-    buildStates = {};
-    updateUI();
-  }
 
   function updateUI() {
-    // 타이틀/섹션
     document.getElementById('mainTitle').textContent = `Lesson ${currentUnit}`;
     document.getElementById('lessonSelect').value = currentUnit;
     let tabs = '', sections = lessonSections[currentUnit] || [];
@@ -144,71 +130,38 @@
     let contentHTML = '';
     const sectionKey = sections[currentSectionIdx];
     const sentArr = sectionSentences[sectionKey] || [];
-    if(currentFeature==='view') {
-      // 해석 연습 모드
-      sentArr.forEach(({en, ko}, i) => {
-        let words = en.split(/(\s+|[.,?!;:])/g).map(word => {
-          let pure = word.replace(/[^A-Za-z\-']/g, '').toLowerCase();
-          if (/[A-Za-z]/.test(word)) {
-            return `<span class="word" onclick="showDict('${pure}')">${word}</span>`;
-          } else {
-            return word;
-          }
-        }).join('');
-        contentHTML += `
-          <div class="sentence-row">
-            <div class="sentence-content">
-              <div class="en">${words}</div>
-              <div class="ko">${ko}</div>
+    sentArr.forEach(({en, ko}, i) => {
+      let st = buildStates[i] || { chosen: [], pool: shuffle(en.split(' ')), result: "" };
+      buildStates[i] = st;
+      contentHTML += `
+        <div class="sentence-row" style="align-items: flex-start;">
+          <div class="sentence-content" style="width:100%">
+            <div class="en" style="margin-bottom:6px;color:#222;">${ko}</div>
+            <div class="eng-ans sortable" id="ans-${i}" 
+              ondragover="allowDropAns(event,${i})" ondragleave="dragLeaveAns(event,${i})" ondrop="dropAns(event,${i})">
+              ${st.chosen.map((w, idx) => `
+                <button class="word" draggable="true" 
+                  ondragstart="dragStartAns(event,${i},${idx})"
+                  onclick="removeWord(${i},${idx})"
+                  data-idx="${idx}"
+                  >${w}</button>
+              `).join('')}
             </div>
-            <button class="show-btn" onclick="toggleKO(this)">해석</button>
-          </div>
-        `;
-      });
-    } else if(currentFeature==='arrange') {
-      // 배열영작 모드
-      sentArr.forEach(({en, ko}, i) => {
-        let st = buildStates[i] || {chosen:[], pool:shuffle(en.split(' ')), result:""};
-        buildStates[i] = st;
-        contentHTML += `
-          <div class="sentence-row" style="align-items: flex-start;">
-            <div class="sentence-content" style="width:100%">
-              <div class="en" style="margin-bottom:6px;color:#222;">${ko}</div>
-              <div class="eng-ans sortable">
-                ${st.chosen.map((w, idx) => `<button class="word" onclick="removeWord(${i},${idx})">${w}</button>`).join('')}
-              </div>
-              <div class="eng-build sortable">
-                ${st.pool.map((w, idx) => `<button class="word" onclick="chooseWord(${i},${idx})">${w}</button>`).join('')}
-              </div>
-              <div class="eng-btns">
-                <button onclick="undoLastWord(${i})">되돌리기</button>
-                <button onclick="resetBuild(${i})">초기화</button>
-                <button onclick="checkBuild(${i})">정답 확인</button>
-              </div>
-              <div class="eng-result" id="engres-${i}">${st.result||""}</div>
+            <div class="eng-build sortable" id="pool-${i}" 
+              ondrop="dropPool(event,${i})" ondragover="allowDropPool(event)" ondragleave="dragLeavePool(event)">
+              ${st.pool.map((w, idx) => `<button class="word" draggable="true" ondragstart="dragStartPool(event,${i},${idx})" onclick="chooseWord(${i},${idx})">${w}</button>`).join('')}
             </div>
+            <div class="eng-btns">
+              <button onclick="undoLastWord(${i})">되돌리기</button>
+              <button onclick="resetBuild(${i})">초기화</button>
+              <button onclick="checkBuild(${i})">정답 확인</button>
+            </div>
+            <div class="eng-result" id="engres-${i}">${st.result||""}</div>
           </div>
-        `;
-      });
-    }
+        </div>
+      `;
+    });
     document.getElementById('sectionContent').innerHTML = contentHTML || `<i>아직 내용이 없습니다.</i>`;
-  }
-
-  // 해석 보기/숨기기
-  function toggleKO(btn) {
-    const ko = btn.parentElement.querySelector('.ko');
-    if (ko.style.display === 'block') {
-      ko.style.display = 'none';
-      btn.textContent = '해석';
-    } else {
-      ko.style.display = 'block';
-      btn.textContent = '숨기기';
-    }
-  }
-  // 단어 클릭 → 네이버 영어사전
-  function showDict(word) {
-    if (!word) return;
-    window.open('https://en.dict.naver.com/#/search?query=' + encodeURIComponent(word), '_blank');
   }
 
   // 배열영작 기능
@@ -251,14 +204,111 @@
     updateUI();
   }
 
+  // --- 드래그 앤 드롭 관련 코드 ---
+  let dragData = null;
+  let dragInsertIdx = null;
+
+  // 풀(아래) → 위로 드래그
+  function dragStartPool(event, i, idx) {
+    dragData = {type:'pool', i, idx};
+    event.dataTransfer.effectAllowed = "move";
+  }
+  // 정답영역(위) → 다른 위치로 드래그
+  function dragStartAns(event, i, idx) {
+    dragData = {type:'ans', i, idx};
+    event.dataTransfer.effectAllowed = "move";
+  }
+  function allowDropAns(event, i) {
+    event.preventDefault();
+    // 마우스가 어느 단어 사이에 있는지 체크
+    const container = document.getElementById(`ans-${i}`);
+    const rect = container.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let insert = 0;
+    let total = container.children.length;
+    let found = false;
+    for(let k=0;k<total;k++) {
+      let child = container.children[k];
+      let childRect = child.getBoundingClientRect();
+      if(x < (childRect.left+childRect.width/2-rect.left)) {
+        child.classList.add("drag-insert");
+        insert = k;
+        found = true;
+        break;
+      } else {
+        child.classList.remove("drag-insert");
+      }
+    }
+    if(!found && total>0) {
+      container.children[total-1].classList.remove("drag-insert");
+    }
+    dragInsertIdx = found ? insert : total;
+    container.classList.add("drag-over");
+  }
+  function dragLeaveAns(event, i) {
+    event.currentTarget.classList.remove("drag-over");
+    Array.from(event.currentTarget.children).forEach(btn=>btn.classList.remove("drag-insert"));
+    dragInsertIdx = null;
+  }
+  function dropAns(event, i) {
+    event.preventDefault();
+    event.currentTarget.classList.remove("drag-over");
+    Array.from(event.currentTarget.children).forEach(btn=>btn.classList.remove("drag-insert"));
+    let st = buildStates[i];
+    if(!dragData) return;
+    if(dragData.type === "pool" && dragData.i === i) {
+      // 풀에서 위로 올리기 (드래그)
+      let word = st.pool[dragData.idx];
+      st.pool.splice(dragData.idx,1);
+      if (typeof dragInsertIdx === "number" && dragInsertIdx >= 0) {
+        st.chosen.splice(dragInsertIdx,0,word);
+      } else {
+        st.chosen.push(word);
+      }
+    } else if(dragData.type === "ans" && dragData.i === i) {
+      // 정답영역 내 단어 순서 바꾸기
+      let [word] = st.chosen.splice(dragData.idx,1);
+      let insertIdx = dragInsertIdx;
+      if(insertIdx > dragData.idx) insertIdx--; // 원래 위치 빼고 나면 한 칸 앞당겨짐
+      st.chosen.splice(insertIdx,0,word);
+    }
+    st.result="";
+    dragInsertIdx = null;
+    dragData=null;
+    updateUI();
+  }
+  // 풀 영역 드롭 (위→아래)
+  function allowDropPool(event) { event.preventDefault(); event.currentTarget.classList.add("drag-over"); }
+  function dragLeavePool(event) { event.currentTarget.classList.remove("drag-over"); }
+  function dropPool(event, i) {
+    event.preventDefault();
+    event.currentTarget.classList.remove("drag-over");
+    let st = buildStates[i];
+    if(!dragData) return;
+    if(dragData.type === "ans" && dragData.i === i) {
+      st.pool.push(st.chosen[dragData.idx]);
+      st.chosen.splice(dragData.idx,1);
+    }
+    st.result="";
+    dragData=null;
+    updateUI();
+  }
+
   updateUI();
-  window.toggleKO = toggleKO;
-  window.showDict = showDict;
-  window.chooseWord = chooseWord;
-  window.removeWord = removeWord;
+  window.selectSection = selectSection;
   window.undoLastWord = undoLastWord;
   window.resetBuild = resetBuild;
   window.checkBuild = checkBuild;
+  window.dragStartPool = dragStartPool;
+  window.dragStartAns = dragStartAns;
+  window.allowDropAns = allowDropAns;
+  window.dragLeaveAns = dragLeaveAns;
+  window.dropAns = dropAns;
+  window.allowDropPool = allowDropPool;
+  window.dragLeavePool = dragLeavePool;
+  window.dropPool = dropPool;
+  window.chooseWord = chooseWord;
+  window.removeWord = removeWord;
 </script>
 </body>
 </html>
